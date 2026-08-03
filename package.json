@@ -1,5 +1,5 @@
 {
-  "name": "mashle-bot",
+  "name": "bot-whatsapp",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -7,9 +7,6 @@
   },
   "dependencies": {
     "@whiskeysockets/baileys": "latest",
-    "qrcode-terminal": "latest"
-  },
-  "engines": {
-    "node": "20.x"
+    "pino": "^8.17.0"
   }
 }
