@@ -1,5 +1,4 @@
-# mashle-bot
-Bot Mashle Whatsapp 
+ 
 const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const qrcode = require('qrcode-terminal');
