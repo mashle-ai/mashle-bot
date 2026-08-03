@@ -1,9 +1,9 @@
-const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const pino = require('pino');
-const qrcode = require('qrcode-terminal');
 const ytSearch = require('yt-search');
 const axios = require('axios');
 const http = require('http');
+const QRCode = require('qrcode');
 
 const CRIADOR = "Peter";
 const NOME_BOT = "Mashle";
@@ -15,15 +15,19 @@ async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth');
     const sock = makeWASocket({
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: true,
         auth: state
     });
     sock.ev.on('creds.update', saveCreds);
 
-    sock.ev.on('connection.update', (update) => {
-        const { connection, qr } = update;
-        if(qr) qrcode.generate(qr, {small: true});
-        if(connection === 'close') startBot();
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, qr, lastDisconnect } = update;
+        if(qr){
+            const qrUrl = await QRCode.toDataURL(qr);
+            console.log(`\n\n===== ESCANEIE ESSE QR AQUI =====\n${qrUrl}\n===== ESCANEIE ESSE QR AQUI =====\n\n`);
+        }
+        if(connection === 'close') {
+            if(lastDisconnect?.error?.output?.statusCode!== DisconnectReason.loggedOut) startBot();
+        }
         if(connection === 'open') console.log(`✅ ${NOME_BOT} ON! Criado pelo ${CRIADOR}`);
     });
 
@@ -41,7 +45,6 @@ async function startBot() {
             if(cmd === 'menu'){
                 await sock.sendMessage(de, { text: `*MENU ${NOME_BOT}*\n\n!musica nome\n!img descrição\nMe marca @${NOME_BOT}` });
             }
-
             if(cmd === 'musica' && pesquisa){
                 await sock.sendMessage(de, { text: `Buscando ${pesquisa}...` });
                 const res = await ytSearch(pesquisa);
@@ -50,14 +53,12 @@ async function startBot() {
                 const link = `https://api.vevioz.com/api/button/mp3/${video.videoId}`
                 await sock.sendMessage(de, { audio: { url: link }, mimetype: 'audio/mpeg', fileName: `${video.title}.mp3` });
             }
-
             if(cmd === 'img' && pesquisa){
                 const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(pesquisa)}`;
                 const img = await axios.get(url, { responseType: 'arraybuffer' });
                 await sock.sendMessage(de, { image: img.data, caption: pesquisa });
             }
         }
-
         if(texto.toLowerCase().includes(NOME_BOT.toLowerCase())){
             await sock.sendMessage(de, { text: `@${sender.split('@')[0]} Tô aqui. Bora treinar?`, mentions: [sender] });
         }
