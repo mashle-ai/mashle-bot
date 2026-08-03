@@ -1,4 +1,16 @@
-"dependencies": {
-  "@whiskeysockets/baileys": "latest",
-  "qrcode-terminal": "latest"
+{
+  "name": "mashle-bot",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp criado pelo Peter",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "qrcode-terminal": "latest"
+  },
+  "engines": {
+    "node": "18.x"
+  }
 }
